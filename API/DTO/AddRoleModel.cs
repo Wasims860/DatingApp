@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace API.DTO
 {
-    public class LoginDto
+    public class AddRoleModel
     {
         [Required]
-         public string UserName { get; set; }
+        public string UserId { get; set; }
+
         [Required]
-          public string Password { get; set; }
+        public string Role { get; set; }
     }
 }

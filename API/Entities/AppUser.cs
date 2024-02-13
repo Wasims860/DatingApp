@@ -1,14 +1,16 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace API.Entities
 {
-    public class AppUser
+    public class AppUser:IdentityUser
     {
-        public int Id { get; set; }
+        
         [Required]
-        public string UserName { get; set; }
-        public byte[] PasswordHash { get; set; }
-        public byte[] PasswordSalt { get; set; }
+        public string FirstName { get; set; }
+         [Required]
+        public string LastName { get; set; }
+         public List<RefreshToken> RefreshTokens { get; set; }
 
     }
 }

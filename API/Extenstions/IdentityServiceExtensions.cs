@@ -13,18 +13,26 @@ namespace API.Extenstions
         public static IServiceCollection AddIdentityServices(this IServiceCollection services,
         IConfiguration config)
         {
-                services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                        .AddJwtBearer(option=>
+                services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(o =>
+                {
+                    o.RequireHttpsMetadata = false;
+                    o.SaveToken = false;
+                    o.TokenValidationParameters = new TokenValidationParameters
                     {
-                        option.TokenValidationParameters=new TokenValidationParameters
-                        {
-                            ValidateIssuerSigningKey=true,
-                            IssuerSigningKey=new SymmetricSecurityKey(Encoding
-                            .UTF8.GetBytes(config["TokenKey"])),
-                            ValidateIssuer=false,
-                            ValidateAudience=false
-                        };
-                    });
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = config["JWT:Issuer"],
+                        ValidAudience = config["JWT:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:Key"]))
+                    };
+                });
                          return services;
         }
     }

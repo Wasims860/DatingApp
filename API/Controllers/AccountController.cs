@@ -15,8 +15,9 @@ using Microsoft.Extensions.Logging;
 
 namespace API.Controllers
 {
-   
-    public class AccountController : BaseApiController
+   [ApiController]
+    [Route("api/[controller]")]
+    public class AccountController : ControllerBase
     {
        
         private readonly DataContext _context;
@@ -28,51 +29,93 @@ namespace API.Controllers
             _context = context;
             
         }
-        [HttpPost("register")]//Post: api/account/register
-        public async Task<ActionResult<UserDto>> Register(RegisterDto registerDto)
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto model)
         {
-            if(await UserExists(registerDto.Username)) 
-            return BadRequest("Username is taken");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            using var hmac=new HMACSHA512();
-            var user=new AppUser()
-            {
-                UserName=registerDto.Username,
-                PasswordHash=hmac.ComputeHash(Encoding.UTF8.GetBytes(registerDto.Password)),
-                PasswordSalt=hmac.Key
-            };
-            _context.Add(user);
-            await _context.SaveChangesAsync();
-            return new UserDto
-            {
-                UserName=user.UserName,
-                Token=_tokenService.CreateToken(user)
-            };
+            var result = await _tokenService.RegisterAsync(model);
+
+            if (!result.IsAuthenticated)
+                return BadRequest(result.Message);
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
+            return Ok(result);
         }
-         [HttpPost("login")]//Post: api/account/register
-        public async Task<ActionResult<UserDto>> Login(LoginDto loginDto)
+
+        [HttpPost("login")]
+        public async Task<IActionResult> GetTokenAsync([FromBody] LoginDto model)
         {
-           var user=await _context.Users.SingleOrDefaultAsync(x=>
-           x.UserName==loginDto.Username.ToLower());
-           if(user==null) return Unauthorized();
-           using var hmac=new HMACSHA512(user.PasswordSalt);
-           var computedHash=hmac.ComputeHash(Encoding.UTF8.GetBytes(loginDto.Password));
-           for(int i=0;i<computedHash.Length;i++)
-           {
-            if(computedHash[i]!=user.PasswordHash[i])return Unauthorized("invalid password");
-           }
-           var result=new UserDto
-            {
-                UserName=user.UserName,
-                Token=_tokenService.CreateToken(user)
-            };
-            Console.WriteLine($"Token: {result.Token}");
-               return result;
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _tokenService.GetTokenAsync(model);
+
+            if (!result.IsAuthenticated)
+                return BadRequest(result.Message);
+            if(!string.IsNullOrEmpty(result.RefreshToken))
+                SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+            return Ok(result);
         }
-        private async Task<bool> UserExists(string username)
+
+        [HttpPost("addrole")]
+        public async Task<IActionResult> AddRoleAsync([FromBody] AddRoleModel model)
         {
-            return await _context.Users.AnyAsync(x=>x.UserName==username.ToLower());
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _tokenService.AddRoleAsync(model);
+
+            if (!string.IsNullOrEmpty(result))
+                return BadRequest(result);
+
+            return Ok(model);
         }
+        [HttpGet("refreshToken")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
+
+            var result = await _tokenService.RefreshTokenAsync(refreshToken);
+
+            if (!result.IsAuthenticated)
+                return BadRequest(result);
+
+            SetRefreshTokenInCookie(result.RefreshToken, result.RefreshTokenExpiration);
+
+            return Ok(result);
+        }
+        [HttpPost("revokeToken")]
+        public async Task<IActionResult> RevokeToken([FromBody] RevokeToken model)
+        {
+            var token = model.Token ?? Request.Cookies["refreshToken"];
+
+            if (string.IsNullOrEmpty(token))
+                return BadRequest("Token is required!");
+
+            var result = await _tokenService.RevokeTokenAsync(token);
+
+            if(!result)
+                return BadRequest("Token is invalid!");
+
+            return Ok();
+        }
+
+         private void SetRefreshTokenInCookie(string refreshToken, DateTime expires)
+        {
+            var cookieOptions = new CookieOptions
+            {
+                 HttpOnly = true,
+                Expires = expires.ToLocalTime(),
+                Secure = true,
+                IsEssential = true,
+                SameSite = SameSiteMode.None
+            };
+
+            Response.Cookies.Append("refreshToken", refreshToken, cookieOptions);
+        }
+    
        
     }
 }
