@@ -87,7 +87,7 @@ namespace API.Services
 
             if (user is null || !await _userManager.CheckPasswordAsync(user, model.Password))
             {
-                authModel.Message = "Email or Password is incorrect!";
+                authModel.Message = "User Name or Password is incorrect!";
                 return authModel;
             }
 

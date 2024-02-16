@@ -3,6 +3,8 @@ import { AccountService } from '../_services/account.service';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import * as moment from 'moment';
 import { User } from '../_models/user';
+import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-nav',
@@ -12,25 +14,12 @@ import { User } from '../_models/user';
 
 export class NavComponent implements OnInit {
 model:any={};
-loggedIn: BehaviorSubject<boolean>=new BehaviorSubject(false);
-currentUser$:Observable<User |null>=of(null);
-/**
- *
- */
-constructor(public accountService:AccountService) {
+
+constructor(public accountService:AccountService,private router:Router,
+  private toastr:ToastrService) {
  
 }
   ngOnInit(): void {
-    //this.currentUser$=this.accountService.currentUser$;
-    this.accountService.currentUser$.subscribe({ //What to do next
-       next:user=>{
-          if(user!=null && moment(user.expiresOn)>=moment())
-          {
-        this.model=user;   
-      }
-    },
-     error:error=>console.log(error)
-   })
   }
 //مثال عن observables 
 //Subscribe من أجل جلب البيانات
@@ -50,14 +39,12 @@ constructor(public accountService:AccountService) {
 
 login(){
   this.accountService.login(this.model).subscribe({
-    next:(response)=>{
-      console.log(response);
-      this.loggedIn.next(true);
-    },
-    error:error=>console.log(error)
+    next:()=>this.router.navigateByUrl('/members'),
+    error:error=>this.toastr.error(error.error)
   })
 }
 logout(){
   this.accountService.logout();
+  this.router.navigateByUrl('/');
 }
 }

@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AccountService } from '../_services/account.service';
 import { BehaviorSubject } from 'rxjs';
+import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-register',
@@ -14,7 +15,7 @@ export class RegisterComponent implements  OnInit {
   loggedIn: BehaviorSubject<boolean>=new BehaviorSubject(false);
 
 model:any={}
-  constructor(public accountService:AccountService) {
+  constructor(public accountService:AccountService, private toastr:ToastrService) {
     
   }
   ngOnInit():void{
@@ -25,7 +26,9 @@ model:any={}
       next:()=>{
         this.cancel();
       },
-      error:error=>console.log(error)
+      error:error=>{
+        console.log(error);
+        this.toastr.error(error.error);}
     })
    
   }
