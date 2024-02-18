@@ -48,7 +48,7 @@ namespace API.Controllers
         public async Task<IActionResult> GetTokenAsync([FromBody] LoginDto model)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest(ModelState.Values);
 
             var result = await _tokenService.GetTokenAsync(model);
 

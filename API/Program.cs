@@ -1,13 +1,8 @@
-using System.Text;
 using API.Data;
 using API.Entities;
 using API.Extenstions;
-using API.Helpers;
-using API.Interfaces;
-using API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using API.Middleware;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +22,8 @@ builder.Services.AddIdentityServices(builder.Configuration);
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseMiddleware<ExceptionMiddleware>();
+
 //app.UseCors(builder=>builder.AllowAnyHeader().AllowAnyMethod().WithOrigins("https://localhost:4200"));
 app.UseCors(builder =>
 {
@@ -45,5 +42,21 @@ app.UseAuthorization();
 
 //app.UseHttpsRedirection();
 app.MapControllers();
+var scopeFactory = app.Services.GetRequiredService<IServiceScopeFactory>();
+
+using var scope = scopeFactory.CreateScope();
+
+var userManger = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+var services = scope.ServiceProvider;
+var context= services.GetRequiredService<DataContext>();
+try
+{
+await Seed.SeedUsers(context,userManger);
+}
+catch(Exception ex)
+{
+    var logger= services.GetService<ILogger<Program>>();
+    logger.LogError(ex, "an error occured during seedUsers");
+}
 
 app.Run();
