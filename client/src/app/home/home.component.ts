@@ -14,22 +14,12 @@ users:any;
     
   }
   ngOnInit(): void {
-  this.getUsers();
   }
 
   registerToggle(){
     this.registerMode=!this.registerMode;
   }
-  getUsers(){
-    this.http.get('https://localhost:5001/api/users').subscribe({
-      next:(response)=>{
-        this.users=response;
-        console.log(response);
-      },
-      error:error=>console.error(error),
-      complete:()=>console.log("complete")
-    })
-  }
+
   cancelRegisterMode(event:boolean){
 this.registerMode=event;
   }
