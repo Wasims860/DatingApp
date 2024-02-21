@@ -83,6 +83,7 @@ namespace API.Services
             var authModel = new UserDto();
             var userName = model.UserName.ToUpper();
             var user = await  _userManager.Users
+                .Include(x => x.Photos)
 					.SingleOrDefaultAsync(x => (x.NormalizedUserName == userName || x.NormalizedEmail == userName) );
 
             if (user is null || !await _userManager.CheckPasswordAsync(user, model.Password))
@@ -100,6 +101,7 @@ namespace API.Services
             authModel.UserName = user.UserName;
             authModel.ExpiresOn = jwtSecurityToken.ValidTo;
             authModel.Roles = rolesList.ToList();
+            authModel.PhotoUrl=user.Photos.FirstOrDefault(x=>x.IsMain)?.Url;
             if(user.RefreshTokens.Any(t => t.IsActive))
             {
                 var activeRefreshToken = user.RefreshTokens.FirstOrDefault(t => t.IsActive);

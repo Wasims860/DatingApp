@@ -35,6 +35,11 @@ members:Member[]=[];
       })
     );
   }
- 
+  setMainPhoto(phtoId:number){
+    return this.http.put(this.baseUrl+'users/set-main-photo/'+phtoId,{});
+  }
+  deletePhoto(phtoId:number){
+    return this.http.delete(this.baseUrl+'users/delete-photo/'+phtoId,{});
+  }
 }
 

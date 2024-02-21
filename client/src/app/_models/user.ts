@@ -2,6 +2,7 @@ export interface User
 {
     userName:string;
     token:string;
+    photoUrl:string;
     message:string;
     isAuthenticated:boolean;
     email:string;

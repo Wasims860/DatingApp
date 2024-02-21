@@ -9,6 +9,6 @@ public class Photo
     public bool IsMain { get; set; }
     public string PublicId { get; set; }
 
-    public string AppUserId { get; set; } = null!;
+    public string AppUserId { get; set; }
     public AppUser AppUser { get; set; }
 }

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AccountService } from '../_services/account.service';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable, of, take } from 'rxjs';
 import * as moment from 'moment';
 import { User } from '../_models/user';
 import { Router } from '@angular/router';
@@ -20,6 +20,7 @@ constructor(public accountService:AccountService,private router:Router,
  
 }
   ngOnInit(): void {
+    this.accountService.currentUser$
   }
 //مثال عن observables 
 //Subscribe من أجل جلب البيانات
