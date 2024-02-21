@@ -38,7 +38,7 @@ export class MemberDetailComponent implements OnInit{
         this.member=member;
         this.galleryImages =this.getImages();
       },
-      error:err=>alert(`Error al cargar el miembro:${err.message}`)
+      error:err=>alert(`Error :${err.message}`)
     })
   }
   getImages() {

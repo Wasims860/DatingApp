@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using API.Data;
@@ -42,7 +43,17 @@ namespace API.Controllers
           
             return user;
         }
-         
+         [HttpPut]
+          public  async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdateDto){
+            var username=User.FindFirst(ClaimTypes.NameIdentifier).Value;
+             var user=await _userRepository.GetUserByUsernameAsync(username);
+             if(user==null) return NotFound();
+             _mapper.Map(memberUpdateDto,user);
+            _userRepository.Update(user) ;
+            return NoContent();
+
+
+          }
     }
    
 }
