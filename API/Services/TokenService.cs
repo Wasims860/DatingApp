@@ -44,7 +44,13 @@ namespace API.Services
                 UserName = model.UserName,
                 Email = model.Email,
                 FirstName = model.FirstName,
-                LastName = model.LastName
+                LastName = model.LastName,
+                KnownAs = model.KnownAs,
+                Gender = model.Gender,
+                DateOfBirth=model.DateOfBirth.Value,
+                City = model.City,
+                Country = model.Country,
+
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -74,6 +80,8 @@ namespace API.Services
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
                 UserName = user.UserName,
                 RefreshToken = refreshToken.Token,
+                KnownAs=user.KnownAs,
+                Gender=user.Gender,
                 RefreshTokenExpiration = refreshToken.ExpiresOn
             };
         }

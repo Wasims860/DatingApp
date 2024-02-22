@@ -1,24 +1,122 @@
-<form #registerForm="ngForm" (ngSubmit)="register()" autocomplete="off">
-<h2 class="text-center text-primary">Sign up</h2>
-<hr>
-<div class="mb-3">
-    <input type="text" class="form-control" placeholder="First Name" name="firstName" [(ngModel)]="model.firstName" required>
-</div>
-<div class="mb-3">
-    <input type="text" class="form-control" placeholder="Last Name" name="laststName" [(ngModel)]="model.lastName" required>
-</div>
-<div class="mb-3">
-    <input type="text" class="form-control" placeholder="Username" name="username" [(ngModel)]="model.username" required>
-</div>
-<div class="mb-3">
-    <input type="email" class="form-control" placeholder="Email" name="email" [(ngModel)]="model.email" required>
-</div>
+<form [formGroup]="registerForm" (ngSubmit)="register()" autocomplete="off">
+  <h2 class="text-center text-primary">Sign up</h2>
+  <hr />
 
-<div class="mb-3">
-    <input type="password" class="form-control" placeholder="Password" name="password" [(ngModel)]="model.password" required>
+  <div class="mb-3">
+    <label style="margin-right: 10px">I am a: </label>
+    <label class="form-check-lable">
+      <input
+        type="radio"
+        class="form-check-input"
+        value="male"
+        formControlName="gender"
+      />Male
+    </label>
+    <label class="form-check-lable">
+      <input
+        type="radio"
+        class="form-check-input ms-3"
+        value="female"
+        formControlName="gender"
+      />Female
+    </label>
+  </div>
+  <div class="mb-3">
+    <div class="row">
+      <div class="col-6">
+        <app-text-input
+          [formControl]="$any(registerForm.controls['firstName'])"
+          [lable]="'First Name'"
+          [type]="'text'"
+        >
+        </app-text-input>
+      </div>
+      <div class="col-6">
+        <app-text-input
+          [formControl]="$any(registerForm.controls['lastName'])"
+          [lable]="'Last Name'"
+          [type]="'text'"
+        >
+        </app-text-input>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-3">
+    <app-text-input
+      [formControl]="$any(registerForm.controls['userName'])"
+      [lable]="'User Name'"
+      [type]="'text'"
+    >
+    </app-text-input>
+  </div>
+  <div class="mb-3">
+    <app-text-input
+      [formControl]="$any(registerForm.controls['knownAs'])"
+      [lable]="'Known As'"
+      [type]="'text'"
+    >
+    </app-text-input>
+  </div>
+  <div class="mb-3">
+    <app-date-picker
+      [formControl]="$any(registerForm.controls['dateOfBirth'])"
+      [lable]="'Date of birth'"
+      [MaxDate]="maxDate"
+    >
+    </app-date-picker>
+  </div>
+  <div class="mb-3">
+    <app-text-input
+      [formControl]="$any(registerForm.controls['country'])"
+      [lable]="'Country'"
+      [type]="'text'"
+    >
+    </app-text-input>
+  </div>
+  <div class="mb-3">
+    <app-text-input
+      [formControl]="$any(registerForm.controls['city'])"
+      [lable]="'City'"
+      [type]="'text'"
+    >
+    </app-text-input>
+  </div>
+  <div class="mb-3">
+    <app-text-input
+      [formControl]="$any(registerForm.controls['email'])"
+      [lable]="'email'"
+      [type]="'email'"
+    >
+    </app-text-input>
+  </div>
+  <div class="mb-3">
+    <app-text-input
+      [formControl]="$any(registerForm.controls['password'])"
+      [lable]="'Password'"
+      [type]="'password'"
+    >
+    </app-text-input>
+  </div>
+  <div class="mb-3">
+    <app-text-input
+      [formControl]="$any(registerForm.controls['confirmPassword'])"
+      [lable]="'Confirm Password'"
+      [type]="'password'"
+    >
+    </app-text-input>
+  </div>
+<div class="row" *ngIf="validationErrors">
+<ul class="text-danger">
+    <li *ngFor="let error in validationErrors">{{error}}</li>
+</ul>
 </div>
-<div class="text-center">
-    <button class="btn btn-success me-2" type="submit"><i class="fa fa-user-plus"></i>&nbsp;Register</button>
-    <button class="btn btn-danger me-2" type="button"(click)="cancel()">Cancel</button>
-</div>
+  <div class="text-center">
+    <button class="btn btn-success me-2" type="submit"[disabled]="!registerForm.valid">
+      <i class="fa fa-user-plus"></i>&nbsp;Register
+    </button>
+    <button class="btn btn-danger me-2" type="button" (click)="cancel()">
+      Cancel
+    </button>
+  </div>
 </form>
